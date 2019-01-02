@@ -162,7 +162,6 @@ __BEGIN_CDECLS;
 #define PDEV_PID_TI_LP8556          1
 #define PDEV_DID_TI_BACKLIGHT       1
 
-
 // Test
 #define PDEV_VID_TEST               17
 #define PDEV_PID_PBUS_TEST          1
@@ -172,5 +171,10 @@ __BEGIN_CDECLS;
 #define PDEV_DID_TEST_CHILD_2       3
 #define PDEV_DID_TEST_CHILD_3       4
 #define PDEV_DID_TEST_GPIO          5
+
+// Seeed Studio
+#define PDEV_VID_SEEED              1000
+#define PDEV_PID_SEEED              2000
+#define PDEV_DID_SEEED_GROVE_LCD    3000
 
 __END_CDECLS;
