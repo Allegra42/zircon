@@ -1,0 +1,8 @@
+library zircon.display.grove.rgb;
+
+[Layout="Simple"]
+
+interface Rgb {
+    1:SetColor(uint8 red, uint8 green, uint8 blue);
+    2:GetColor() -> (uint8 red, uint8 green, uint8 blue);
+};
