@@ -176,5 +176,6 @@ __BEGIN_CDECLS;
 #define PDEV_VID_SEEED              1000
 #define PDEV_PID_SEEED              2000
 #define PDEV_DID_SEEED_GROVE_LCD    3000
+#define PDEV_DID_SEEED_GROVE_RGB    4000
 
 __END_CDECLS;

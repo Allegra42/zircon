@@ -16,7 +16,7 @@
 #include <zircon/types.h>
 #include <zircon/syscalls.h>
 
-//FIDL include
+// FIDL include
 #include <zircon/display/grove/rgb/c/fidl.h>
 
 #define RED 0x04
@@ -216,6 +216,7 @@ static int grove_rgb_init_thread(void* arg) {
 
 init_failed:
     zxlogf(ERROR, "grove-rgb init thread failed\n");
+    mtx_unlock(&grove_rgb->lock);
     device_remove(grove_rgb->device);
     free(grove_rgb);
     return ZX_ERR_IO;
@@ -240,7 +241,7 @@ static zx_status_t grove_rgb_bind(void* ctx, zx_device_t* parent) {
 
     device_add_args_t args = {
         .version = DEVICE_ADD_ARGS_VERSION,
-        .name = "grove-lcd-rgb-drv",
+        .name = "grove-rgb-drv",
         .ctx = grove_rgb,
         .ops = &grove_rgb_device_protocol,
         .flags = DEVICE_ADD_INVISIBLE,
@@ -270,10 +271,10 @@ static zx_driver_ops_t grove_rgb_driver_ops = {
 };
 
 // clang-format off
-ZIRCON_DRIVER_BEGIN(grove-lcd-rgb-drv, grove_rgb_driver_ops, "zircon", "0.1", 4)
+ZIRCON_DRIVER_BEGIN(grove-rgb-drv, grove_rgb_driver_ops, "zircon", "0.1", 4)
     BI_ABORT_IF(NE, BIND_PROTOCOL, ZX_PROTOCOL_PDEV),
     BI_ABORT_IF(NE, BIND_PLATFORM_DEV_VID, PDEV_VID_SEEED),
     BI_ABORT_IF(NE, BIND_PLATFORM_DEV_PID, PDEV_PID_SEEED),
-    BI_MATCH_IF(EQ, BIND_PLATFORM_DEV_DID, PDEV_DID_SEEED_GROVE_LCD),
-ZIRCON_DRIVER_END(grove-lcd-rgb-drv)
+    BI_MATCH_IF(EQ, BIND_PLATFORM_DEV_DID, PDEV_DID_SEEED_GROVE_RGB),
+ZIRCON_DRIVER_END(grove-rgb-drv)
 // clang-format on
