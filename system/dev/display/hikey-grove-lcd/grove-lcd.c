@@ -59,7 +59,7 @@ static int grove_lcd_init_thread(void* arg) {
 
     i2c_cmd_t setup_cmds[] = {
         {LCD_CMD, 0x01},
-        /* {LCD_CMD, 0x02}, */
+        {LCD_CMD, 0x02},
         {LCD_CMD, 0x08 | 0x04},
         {LCD_CMD, 0x28},
         {WRITE_CMD, 'I'},
@@ -69,19 +69,18 @@ static int grove_lcd_init_thread(void* arg) {
     };
 
     for (int i = 0; i < (int) (sizeof(setup_cmds) / sizeof(*setup_cmds)); i++) {
-        status = i2c_write_sync(&grove_lcd->i2c, &setup_cmds[i].cmd, 2);
+        status = i2c_write_sync(&grove_lcd->i2c, &setup_cmds[i].cmd, sizeof(setup_cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-lcd: write failed\n");
             goto init_failed;
         }
-    } 
+    }
 
     mtx_unlock(&grove_lcd->lock);
 
     device_make_visible(grove_lcd->device);
 
     zxlogf(INFO, "grove-lcd: init thread runned successfully!\n");
-    
 
     return ZX_OK;
 
@@ -90,7 +89,7 @@ init_failed:
     mtx_unlock(&grove_lcd->lock);
     device_remove(grove_lcd->device);
     free(grove_lcd);
-    return ZX_ERR_IO; 
+    return ZX_ERR_IO;
 }
 
 static zx_status_t grove_lcd_bind(void* ctx, zx_device_t* parent) {

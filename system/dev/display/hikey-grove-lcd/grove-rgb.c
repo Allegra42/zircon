@@ -109,7 +109,7 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
     };
 
     for (int i = 0; i < (int) (sizeof(cmds) / sizeof(*cmds)); i++) {
-        status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, 2);
+        status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
             mtx_unlock(&grove_rgb->lock);
@@ -139,7 +139,7 @@ static zx_status_t grove_rgb_fidl_set_color(void* ctx, uint8_t red, uint8_t gree
     };
 
     for (int i = 0; i < (int) (sizeof(cmds) / sizeof(*cmds)); i++) {
-        status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, 2);
+        status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
             mtx_unlock(&grove_rgb->lock);
@@ -198,7 +198,7 @@ static int grove_rgb_init_thread(void* arg) {
 
     for (int i = 0; i < (int) (sizeof(cmds) / sizeof(*cmds)); i++) {
         zxlogf(INFO, "grove-rgb: command: %x %x\n", cmds[i].cmd, cmds[i].val);
-        status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, 2);
+        status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
             goto init_failed;
