@@ -9,19 +9,18 @@
 #include <ddk/debug.h>
 #include <ddk/device.h>
 #include <ddk/platform-defs.h>
-#include <ddk/protocol/i2c.h>
 #include <ddk/protocol/i2c-lib.h>
+#include <ddk/protocol/i2c.h>
 
-
-#include <zircon/types.h>
 #include <zircon/syscalls.h>
+#include <zircon/types.h>
 
 // FIDL include
 // TODO
 
-#define LCD_CMD         0x80
-#define WRITE_CMD       0x40
-#define DISPLAY_SIZE    34  // We have 2x 16 positions at the LCD. To provide enough space for one '\n' a line, the buffer is set to 34.  
+#define LCD_CMD 0x80
+#define WRITE_CMD 0x40
+#define DISPLAY_SIZE 34 // We have 2x 16 positions at the LCD. To provide enough space for one '\n' a line, the buffer is set to 34.
 
 typedef struct {
     zx_device_t* device;
@@ -35,10 +34,9 @@ typedef struct {
     uint8_t val;
 } i2c_cmd_t;
 
-
 static void grove_lcd_release(void* ctx) {
     zxlogf(INFO, "%s\n", __func__);
-    
+
     grove_lcd_t* grove_lcd = ctx;
     free(grove_lcd);
 }
@@ -68,7 +66,7 @@ static int grove_lcd_init_thread(void* arg) {
         {WRITE_CMD, 't'},
     };
 
-    for (int i = 0; i < (int) (sizeof(setup_cmds) / sizeof(*setup_cmds)); i++) {
+    for (int i = 0; i < (int)(sizeof(setup_cmds) / sizeof(*setup_cmds)); i++) {
         status = i2c_write_sync(&grove_lcd->i2c, &setup_cmds[i].cmd, sizeof(setup_cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-lcd: write failed\n");

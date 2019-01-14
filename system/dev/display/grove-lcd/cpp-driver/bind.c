@@ -5,7 +5,6 @@
 #include <ddk/platform-defs.h>
 #include <stdlib.h>
 
-
 extern zx_status_t grove_rgb_bind(void* ctx, zx_device_t* parent);
 
 static zx_driver_ops_t grove_rgb_cpp_driver_ops = {

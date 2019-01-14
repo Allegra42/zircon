@@ -1,41 +1,41 @@
 LOCAL_DIR := $(GET_LOCAL_DIR)
 
 
-# MAKEFILE FOR THE RGB DRIVER
-MODULE := $(LOCAL_DIR).RGB
+# Makefile for the RGB driver
+MODULE := $(LOCAL_DIR).rgb
 
-MODULE_NAME := GROVE-RGB-DRV
+MODULE_NAME := grove-rgb-drv
 
-MODULE_TYPE = DRIVER
+MODULE_TYPE = driver
 
-MODULE_SRCS := $(LOCAL_DIR)/GROVE-RGB.C
+MODULE_SRCS := $(LOCAL_DIR)/grove-rgb.c
 
-MODULE_STATIC_LIBS := SYSTEM/ULIB/DDK SYSTEM/ULIB/FIDL SYSTEM/ULIB/SYNC
+MODULE_STATIC_LIBS := system/ulib/ddk system/ulib/fidl system/ulib/sync
 
-MODULE_LIBS := SYSTEM/ULIB/DRIVER SYSTEM/ULIB/C SYSTEM/ULIB/ZIRCON
+MODULE_LIBS := system/ulib/driver system/ulib/c system/ulib/zircon
 
-MODULE_BANJO_LIBS := SYSTEM/BANJO/DDK-PROTOCOL-I2C SYSTEM/BANJO/DDK-PROTOCOL-PLATFORM-DEVICE SYSTEM/BANJO/DDK-PROTOCOL-PLATFORM-BUS
+MODULE_BANJO_LIBS := system/banjo/ddk-protocol-i2c system/banjo/ddk-protocol-platform-device system/banjo/ddk-protocol-platform-bus
 
-MODULE_FIDL_LIBS := SYSTEM/FIDL/ZIRCON-DISPLAY-GROVE-RGB
+MODULE_FIDL_LIBS := system/fidl/zircon-display-grove-rgb
 
-INCLUDE MAKE/MODULE.MK
+include make/module.mk
 
 
-# MAKEFILE FOR THE LCD DRIVER
-MODULE := $(LOCAL_DIR).LCD
+# Makefile for the LCD driver
+MODULE := $(LOCAL_DIR).lcd
 
-MODULE_NAME := GROVE-LCD-DRV
+MODULE_NAME := grove-lcd-drv
 
-MODULE_TYPE = DRIVER
+MODULE_TYPE = driver
 
-MODULE_SRCS := $(LOCAL_DIR)/GROVE-LCD.C
+MODULE_SRCS := $(LOCAL_DIR)/grove-lcd.c
 
-MODULE_STATIC_LIBS := SYSTEM/ULIB/DDK SYSTEM/ULIB/FIDL SYSTEM/ULIB/SYNC
+MODULE_STATIC_LIBS := system/ulib/ddk system/ulib/fidl system/ulib/sync
 
-MODULE_LIBS := SYSTEM/ULIB/DRIVER SYSTEM/ULIB/C SYSTEM/ULIB/ZIRCON
+MODULE_LIBS := system/ulib/driver system/ulib/c system/ulib/zircon
 
-MODULE_BANJO_LIBS := SYSTEM/BANJO/DDK-PROTOCOL-I2C SYSTEM/BANJO/DDK-PROTOCOL-PLATFORM-DEVICE SYSTEM/BANJO/DDK-PROTOCOL-PLATFORM-BUS
+MODULE_BANJO_LIBS := system/banjo/ddk-protocol-i2c system/banjo/ddk-protocol-platform-device system/banjo/ddk-protocol-platform-bus
 
-# MODULE_FIDL_LIBS := SYSTEM/FIDL/ZIRCON-DISPLAY-GROVE-LCD
+# MODULE_FIDL_LIBS := system/fidl/zircon-display-grove-lcd
 
 include make/module.mk

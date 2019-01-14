@@ -9,12 +9,11 @@
 #include <ddk/debug.h>
 #include <ddk/device.h>
 #include <ddk/platform-defs.h>
-#include <ddk/protocol/i2c.h>
 #include <ddk/protocol/i2c-lib.h>
+#include <ddk/protocol/i2c.h>
 
-
-#include <zircon/types.h>
 #include <zircon/syscalls.h>
+#include <zircon/types.h>
 
 // FIDL include
 #include <zircon/display/grove/rgb/c/fidl.h>
@@ -41,7 +40,6 @@ typedef struct {
     uint8_t val;
 } i2c_cmd_t;
 
-
 static void grove_rgb_release(void* ctx) {
     zxlogf(INFO, "%s\n", __func__);
     grove_rgb_t* grove_rgb = ctx;
@@ -52,18 +50,17 @@ static zx_status_t grove_rgb_read(void* ctx, void* buf, size_t count, zx_off_t o
     zxlogf(INFO, "%s\n", __func__);
     if (off == 0) {
         grove_rgb_t* grove_rgb = ctx;
-        char tmp [50];
-        *actual = snprintf(tmp, sizeof(tmp), "Grove LCD RGB Status:\nRed: %x\nGreen: %x\nBlue: %x\n", 
-                grove_rgb->color.red, grove_rgb->color.green, grove_rgb->color.blue);
+        char tmp[50];
+        *actual = snprintf(tmp, sizeof(tmp), "Grove LCD RGB Status:\nRed: %x\nGreen: %x\nBlue: %x\n",
+                           grove_rgb->color.red, grove_rgb->color.green, grove_rgb->color.blue);
         if (*actual > count) {
             *actual = count;
         }
         memcpy(buf, tmp, *actual);
-    }
-    else {
+    } else {
         *actual = 0;
     }
-    return ZX_OK;    
+    return ZX_OK;
 }
 
 static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_off_t off, size_t* actual) {
@@ -72,7 +69,7 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
 
     zx_status_t status;
     grove_rgb_t* grove_rgb = ctx;
-    
+
     char delim[] = " ";
     int i = 0;
 
@@ -88,11 +85,9 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
         zxlogf(INFO, "grove-rgb read token %s\n", ptr);
         if (i == 0 && ptr[0] == 'r') {
             grove_rgb->color.red = atoi(++ptr);
-        }
-        else if (i == 1 && ptr[0] == 'g') {
+        } else if (i == 1 && ptr[0] == 'g') {
             grove_rgb->color.green = atoi(++ptr);
-        }  
-        else if (i == 2 && ptr[0] == 'b') {
+        } else if (i == 2 && ptr[0] == 'b') {
             grove_rgb->color.blue = atoi(++ptr);
         } else {
             zxlogf(ERROR, "wrong input format!\n");
@@ -108,7 +103,7 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
         {BLUE, grove_rgb->color.blue},
     };
 
-    for (int i = 0; i < (int) (sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
@@ -116,7 +111,7 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
             return status;
         }
     }
-    
+
     mtx_unlock(&grove_rgb->lock);
 
     return status;
@@ -138,7 +133,7 @@ static zx_status_t grove_rgb_fidl_set_color(void* ctx, uint8_t red, uint8_t gree
         {BLUE, grove_rgb->color.blue},
     };
 
-    for (int i = 0; i < (int) (sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
@@ -160,7 +155,7 @@ static zx_status_t grove_rgb_fidl_get_color(void* ctx, fidl_txn_t* txn) {
 }
 
 static zircon_display_grove_rgb_Rgb_ops_t fidl_ops = {
-    .SetColor = grove_rgb_fidl_set_color, 
+    .SetColor = grove_rgb_fidl_set_color,
     .GetColor = grove_rgb_fidl_get_color,
 };
 
@@ -168,7 +163,6 @@ static zx_status_t grove_rgb_fidl_message(void* ctx, fidl_msg_t* msg, fidl_txn_t
     zx_status_t status = zircon_display_grove_rgb_Rgb_dispatch(ctx, txn, msg, &fidl_ops);
     return status;
 }
-
 
 static zx_protocol_device_t grove_rgb_device_protocol = {
     .version = DEVICE_OPS_VERSION,
@@ -184,7 +178,7 @@ static int grove_rgb_init_thread(void* arg) {
     zx_status_t status;
 
     mtx_lock(&grove_rgb->lock);
-    
+
     grove_rgb->color.green = 0xff;
 
     i2c_cmd_t cmds[] = {
@@ -196,7 +190,7 @@ static int grove_rgb_init_thread(void* arg) {
         {BLUE, grove_rgb->color.blue},
     };
 
-    for (int i = 0; i < (int) (sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
         zxlogf(INFO, "grove-rgb: command: %x %x\n", cmds[i].cmd, cmds[i].val);
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
@@ -206,7 +200,7 @@ static int grove_rgb_init_thread(void* arg) {
     }
 
     mtx_unlock(&grove_rgb->lock);
-    
+
     zxlogf(INFO, "making device visible\n");
     device_make_visible(grove_rgb->device);
 
@@ -222,7 +216,6 @@ init_failed:
     return ZX_ERR_IO;
 }
 
-
 static zx_status_t grove_rgb_bind(void* ctx, zx_device_t* parent) {
     zxlogf(INFO, "%s\n", __func__);
     zx_status_t status;
@@ -232,7 +225,7 @@ static zx_status_t grove_rgb_bind(void* ctx, zx_device_t* parent) {
     if (!grove_rgb) {
         return ZX_ERR_NO_MEMORY;
     }
-    
+
     if (device_get_protocol(parent, ZX_PROTOCOL_I2C, &grove_rgb->i2c) != ZX_OK) {
         free(grove_rgb);
         zxlogf(ERROR, "Failed to fetch the I2C protocol for the grove lcd rgb driver - not supported\n");
