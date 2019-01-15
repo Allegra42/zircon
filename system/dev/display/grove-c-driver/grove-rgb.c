@@ -91,7 +91,8 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
             grove_rgb->color.blue = atoi(++ptr);
         } else {
             zxlogf(ERROR, "wrong input format!\n");
-            return ZX_OK;
+            status = ZX_OK;
+            goto fail;
         }
         ptr = strtok(NULL, delim);
         i++;
@@ -107,13 +108,12 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
-            mtx_unlock(&grove_rgb->lock);
-            return status;
+            goto fail;
         }
     }
 
+fail:
     mtx_unlock(&grove_rgb->lock);
-
     return status;
 }
 
@@ -264,8 +264,7 @@ static zx_driver_ops_t grove_rgb_driver_ops = {
 };
 
 // clang-format off
-ZIRCON_DRIVER_BEGIN(grove-rgb-drv, grove_rgb_driver_ops, "zircon", "0.1", 4)
-    BI_ABORT_IF(NE, BIND_PROTOCOL, ZX_PROTOCOL_PDEV),
+ZIRCON_DRIVER_BEGIN(grove-rgb-drv, grove_rgb_driver_ops, "zircon", "0.1", 3)
     BI_ABORT_IF(NE, BIND_PLATFORM_DEV_VID, PDEV_VID_SEEED),
     BI_ABORT_IF(NE, BIND_PLATFORM_DEV_PID, PDEV_PID_SEEED),
     BI_MATCH_IF(EQ, BIND_PLATFORM_DEV_DID, PDEV_DID_SEEED_GROVE_RGB),
