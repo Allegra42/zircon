@@ -53,6 +53,7 @@ static const pbus_dev_t i2c_dev = {
     .irq_count = countof(i2c_irqs),
 };
 
+// For general I2C drivers
 static const pbus_i2c_channel_t i2c_grove_rgb_channels[] = {
     {
         .bus_id = 0,        // <-- corresponding to line 14ff mmio array, position 0, may define enum for better readability
@@ -61,6 +62,18 @@ static const pbus_i2c_channel_t i2c_grove_rgb_channels[] = {
 };
 
 static const pbus_i2c_channel_t i2c_grove_lcd_channels[] = {
+    {
+        .bus_id = 0,
+        .address = 0x3e,
+    },
+}; 
+
+// For PDEV based I2C drivers
+static const pbus_i2c_channel_t i2c_grove_pdev_channels[] = {
+    {
+        .bus_id = 0,
+        .address = 0x62,
+    },
     {
         .bus_id = 0,
         .address = 0x3e,
@@ -83,6 +96,15 @@ static const pbus_dev_t i2c_grove_lcd_dev = {
     .did = PDEV_DID_SEEED_GROVE_LCD,    // specific did for matching,
     .i2c_channel_list = i2c_grove_lcd_channels,
     .i2c_channel_count = countof(i2c_grove_lcd_channels),
+}; 
+
+static const pbus_dev_t i2c_grove_pdev_dev = {
+    .name = "grove-lcd-i2c",
+    .vid = PDEV_VID_SEEED,              // specific vid for matching,
+    .pid = PDEV_PID_SEEED,              // specific pid for matching,
+    .did = PDEV_DID_SEEED_GROVE_PDEV,    // specific did for matching,
+    .i2c_channel_list = i2c_grove_pdev_channels,
+    .i2c_channel_count = countof(i2c_grove_pdev_channels),
 };
 
 
@@ -93,7 +115,7 @@ zx_status_t hikey960_i2c_init(hikey960_t* bus) {
         return status;
     }
 
-    //add my grove lcd
+    // add grove rgb
     if ((status = pbus_device_add(&bus->pbus, &i2c_grove_rgb_dev)) != ZX_OK) {
         zxlogf(ERROR, "i2c_grove_rgb could not be added to pbus. Status: %d\n", status);
     }
@@ -101,11 +123,21 @@ zx_status_t hikey960_i2c_init(hikey960_t* bus) {
         zxlogf(INFO, "i2c_grove_rgb successfully added!\n");
     }
 
+    // add grove lcd
     if ((status = pbus_device_add(&bus->pbus, &i2c_grove_lcd_dev)) != ZX_OK) {
         zxlogf(ERROR, "i2c_grove_lcd could not be added to pbus. Status: %d\n", status);
     }
     else {
         zxlogf(INFO, "i2c_grove_lcd successfully added!\n");
+    } 
+    
+    // add grove (pdev version) 
+    if ((status = pbus_device_add(&bus->pbus, &i2c_grove_pdev_dev)) != ZX_OK) {
+        zxlogf(ERROR, "i2c_grove_lcd could not be added to pbus. Status: %d\n", status);
     }
+    else {
+        zxlogf(INFO, "i2c_grove_lcd successfully added!\n");
+    }
+
     return ZX_OK;
 }
