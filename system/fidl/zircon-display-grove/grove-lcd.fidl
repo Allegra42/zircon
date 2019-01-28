@@ -1,0 +1,12 @@
+library zircon.display.grove.lcd;
+using zx;
+
+[Layout="Simple"]
+
+interface Lcd {
+    1:Clear() -> (zx.status status);
+    2:WriteFirstLine(uint8 position, string:32 line) -> (zx.status status);
+    3:WriteSecondLine(uint8 position, string:32 line) -> (zx.status status);
+    4:ReadLcd() -> (string:32 content);
+    5:GetLineSize() -> (uint8 linesize);
+};

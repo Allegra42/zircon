@@ -16,7 +16,7 @@ MODULE_LIBS := system/ulib/driver system/ulib/c system/ulib/zircon
 
 MODULE_BANJO_LIBS := system/banjo/ddk-protocol-i2c system/banjo/ddk-protocol-platform-device system/banjo/ddk-protocol-platform-bus
 
-MODULE_FIDL_LIBS := system/fidl/zircon-display-grove-rgb
+MODULE_FIDL_LIBS := system/fidl/zircon-display-grove.rgb
 
 include make/module.mk
 
@@ -36,6 +36,6 @@ MODULE_LIBS := system/ulib/driver system/ulib/c system/ulib/zircon
 
 MODULE_BANJO_LIBS := system/banjo/ddk-protocol-i2c system/banjo/ddk-protocol-platform-device system/banjo/ddk-protocol-platform-bus
 
-# MODULE_FIDL_LIBS := system/fidl/zircon-display-grove-lcd
+MODULE_FIDL_LIBS := system/fidl/zircon-display-grove.lcd
 
 include make/module.mk

@@ -191,7 +191,6 @@ static int grove_rgb_init_thread(void* arg) {
     };
 
     for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
-        zxlogf(INFO, "grove-rgb: command: %x %x\n", cmds[i].cmd, cmds[i].val);
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
