@@ -1,5 +1,4 @@
 library zircon.display.grove.lcd;
-using zx;
 
 [Layout="Simple"]
 

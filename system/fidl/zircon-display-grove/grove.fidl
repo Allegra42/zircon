@@ -1,0 +1,13 @@
+library zircon.display.grove.pdev;
+
+[Layout="Simple"]
+
+interface Pdev {
+    1:SetColor(uint8 red, uint8 green, uint8 blue);
+    2:GetColor() -> (uint8 red, uint8 green, uint8 blue);
+    3:ClearLcd();
+    4:WriteFirstLine(uint8 position, string:32 line);
+    5:WriteSecondLine(uint8 position, string:32 line);
+    6:ReadLcd() -> (string:32 content);
+    7:GetLineSize() -> (uint8 linesize);
+};
