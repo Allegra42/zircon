@@ -38,7 +38,7 @@ typedef struct {
 void grove_lcd_prepare_text(char* input, char* line) {
     char tmp[LINE_SIZE];
 
-    snprintf(tmp, (strlen(input) + 1 < LINE_SIZE ? strlen(input) + 1 : LINE_SIZE), input);
+    snprintf(tmp, (strlen(input) + 1 < LINE_SIZE ? strlen(input) + 1 : LINE_SIZE), "%s", input);
     strcpy(line, "@");
     strcat(line, tmp);
 }
@@ -55,12 +55,15 @@ zx_status_t grove_lcd_write_line(void* ctx, i2c_cmd_t* cmds, char* raw_line) {
     for (int i = 0; i < (int)(sizeof(cmds) / sizeof(&cmds)); i++) {
         status = i2c_write_sync(&grove_lcd->i2c, &cmds[i].cmd, sizeof(cmds[i]));
         if (status != ZX_OK) {
-            zxlogf(ERROR, "grove-lcd: write failed\n");
+            zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");
             goto error;
         }
     }
 
     status = i2c_write_sync(&grove_lcd->i2c, line, strlen(line));
+    if (status != ZX_OK) {
+        zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");
+    }
 
 error:
     mtx_unlock(&grove_lcd->lock);
@@ -83,7 +86,7 @@ zx_status_t grove_lcd_fidl_write_first_line(void* ctx, uint8_t position, const c
     zx_status_t status;
     grove_lcd_t* grove_lcd = ctx;
 
-    snprintf(grove_lcd->line_one, sizeof(grove_lcd->line_one), line_data);
+    snprintf(grove_lcd->line_one, sizeof(grove_lcd->line_one), "%s", line_data);
 
     uint8_t val = (position | 0x80);
     i2c_cmd_t cmds[] = {
@@ -99,9 +102,9 @@ zx_status_t grove_lcd_fidl_write_second_line(void* ctx, uint8_t position, const 
     zx_status_t status;
     grove_lcd_t* grove_lcd = ctx;
 
-    snprintf(grove_lcd->line_two, sizeof(grove_lcd->line_two), line_data);
+    snprintf(grove_lcd->line_two, sizeof(grove_lcd->line_two), "%s", line_data);
 
-    uint8_t val = (0xc0);
+    uint8_t val = (position | 0xc0);
     i2c_cmd_t cmds[] = {
         {LCD_CMD, val}, // set cursor
     };
@@ -167,7 +170,7 @@ static zx_status_t grove_lcd_write(void* ctx, const void* buf, size_t count, zx_
     grove_lcd_t* grove_lcd = ctx;
 
     zxlogf(INFO, "%s:  buf %s\n", __func__, (char*)buf);
-    snprintf(grove_lcd->line_one, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, buf);
+    snprintf(grove_lcd->line_one, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
     *actual = count;
 
     i2c_cmd_t cmds[] = {
@@ -218,7 +221,7 @@ static int grove_lcd_init_thread(void* arg) {
     for (int i = 0; i < (int)(sizeof(setup_cmds) / sizeof(*setup_cmds)); i++) {
         status = i2c_write_sync(&grove_lcd->i2c, &setup_cmds[i].cmd, sizeof(setup_cmds[0]));
         if (status != ZX_OK) {
-            zxlogf(ERROR, "grove-lcd: write failed\n");
+            zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");
             goto init_failed;
         }
     }
@@ -230,6 +233,11 @@ static int grove_lcd_init_thread(void* arg) {
     // As a string prefix, it is interpreted as the target register, just as intended.
     // The following chars are send as specified by the API, serialized on this address.
     status = i2c_write_sync(&grove_lcd->i2c, "@Init", 5);
+    if (status != ZX_OK) {
+        zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");
+        goto init_failed;
+    }
+
 
     mtx_unlock(&grove_lcd->lock);
 
