@@ -114,14 +114,14 @@ zx_status_t GroveRgbDevice::GetColor(void* ctx, fidl_txn_t* txn) {
     return zircon_display_grove_rgb_RgbGetColor_reply(txn, self.color_red, self.color_green, self.color_blue);
 }
 
-zircon_display_grove_rgb_Rgb_ops_t fidl_ops = {
+zircon_display_grove_rgb_Rgb_ops_t fidl_rgb_ops = {
     .SetColor = GroveRgbDevice::SetColor,
     .GetColor = GroveRgbDevice::GetColor,
 };
 
 zx_status_t GroveRgbDevice::DdkMessage(fidl_msg_t* msg, fidl_txn_t* txn) {
     zxlogf(INFO, "%s\n", __func__);
-    return zircon_display_grove_rgb_Rgb_dispatch(this, txn, msg, &fidl_ops);
+    return zircon_display_grove_rgb_Rgb_dispatch(this, txn, msg, &fidl_rgb_ops);
 }
 
 zx_status_t GroveRgbDevice::RgbInit() {
