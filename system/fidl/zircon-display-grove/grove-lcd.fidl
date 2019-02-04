@@ -3,7 +3,7 @@ library zircon.display.grove.lcd;
 [Layout="Simple"]
 
 interface Lcd {
-    1:Clear();
+    1:ClearLcd();
     2:WriteFirstLine(uint8 position, string:32 line);
     3:WriteSecondLine(uint8 position, string:32 line);
     4:ReadLcd() -> (string:32 content);

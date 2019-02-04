@@ -184,7 +184,7 @@ static zx_status_t grove_lcd_write(void* ctx, const void* buf, size_t count, zx_
 }
 
 static zircon_display_grove_lcd_Lcd_ops_t grove_lcd_fidl_ops = {
-    .Clear = grove_lcd_fidl_clear,
+    .ClearLcd = grove_lcd_fidl_clear,
     .WriteFirstLine = grove_lcd_fidl_write_first_line,
     .WriteSecondLine = grove_lcd_fidl_write_second_line,
     .ReadLcd = grove_lcd_fidl_read_lcd,
@@ -237,7 +237,6 @@ static int grove_lcd_init_thread(void* arg) {
         zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");
         goto init_failed;
     }
-
 
     mtx_unlock(&grove_lcd->lock);
 

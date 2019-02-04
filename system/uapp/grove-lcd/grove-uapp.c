@@ -56,7 +56,7 @@ int main(int argc, const char** argv) {
 
     sleep(3);
 
-    if ((status = zircon_display_grove_lcd_LcdClear(handle_lcd)) != ZX_OK) {
+    if ((status = zircon_display_grove_lcd_LcdClearLcd(handle_lcd)) != ZX_OK) {
         fprintf(stderr, "grove-lcd: can not execute FIDL command, error %d\n", status);
         exit(EXIT_FAILURE);
     }
