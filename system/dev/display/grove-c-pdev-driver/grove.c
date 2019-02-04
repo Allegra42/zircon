@@ -306,7 +306,7 @@ static zx_status_t grove_bind(void* ctx, zx_device_t* parent) {
 
     device_add_args_t args = {
         .version = DEVICE_ADD_ARGS_VERSION,
-        .name = "grove-drv",
+        .name = "grove-pdev-drv",
         .ctx = grove,
         .ops = &grove_device_protocol,
         .flags = DEVICE_ADD_INVISIBLE,

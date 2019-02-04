@@ -13,7 +13,7 @@
 
 int main(int argc, const char** argv) {
 
-    static const char* dev_path = "/dev/sys/platform/3e8:7d0:1388/grove-drv";
+    static const char* dev_path = "/dev/sys/platform/3e8:7d0:1388/grove-pdev-drv";
 
     int fd = open(dev_path, O_RDWR);
     if (fd < 0) {
