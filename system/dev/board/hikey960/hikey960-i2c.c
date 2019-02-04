@@ -133,10 +133,10 @@ zx_status_t hikey960_i2c_init(hikey960_t* bus) {
     
     // add grove (pdev version) 
     if ((status = pbus_device_add(&bus->pbus, &i2c_grove_pdev_dev)) != ZX_OK) {
-        zxlogf(ERROR, "i2c_grove_lcd could not be added to pbus. Status: %d\n", status);
+        zxlogf(ERROR, "i2c_grove_pdev could not be added to pbus. Status: %d\n", status);
     }
     else {
-        zxlogf(INFO, "i2c_grove_lcd successfully added!\n");
+        zxlogf(INFO, "i2c_grove_pdev successfully added!\n");
     }
 
     return ZX_OK;
