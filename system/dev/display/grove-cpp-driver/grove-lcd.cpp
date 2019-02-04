@@ -153,7 +153,7 @@ zx_status_t GroveLcdDevice::LcdInit() {
 
     fbl::AutoLock lock(&i2c_lock);
     for (const auto& i : cmds) {
-        status = i2c_lcd.WriteSync(&i.cmds, sizeof(cmds[0]));
+        status = i2c_lcd.WriteSync(&i.cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "lcd-cpp: i2c.WriteSync failed\n");
             goto error;
