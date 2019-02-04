@@ -19,9 +19,8 @@
 
 #include <fbl/auto_lock.h>
 #include <fbl/mutex.h>
+#include <fbl/string.h>
 #include <fbl/unique_ptr.h>
-
-#include <string>
 
 #endif // __cplusplus
 
@@ -49,7 +48,7 @@ public:
     zx_status_t DdkMessage(fidl_msg_t* msg, fidl_txn_t* txn);
 
     // Definitions for FIDL
-    static zx_status_t Clear(void* ctx);
+    static zx_status_t ClearLcd(void* ctx);
     static zx_status_t WriteFirstLine(void* ctx, uint8_t position, const char* line_data, size_t line_size);
     static zx_status_t WriteSecondLine(void* ctx, uint8_t position, const char* line_data, size_t line_size);
     static zx_status_t ReadLcd(void* ctx, fidl_txn_t* txn);
@@ -58,8 +57,8 @@ public:
 private:
     ddk::I2cChannel i2c_lcd;
     fbl::Mutex i2c_lock;
-    std::string line_one;
-    std::string line_two;
+    fbl::String line_one;
+    fbl::String line_two;
 
     struct I2cCmd {
         uint8_t cmd;
@@ -67,6 +66,6 @@ private:
     };
 
     zx_status_t LcdInit();
-    zx_status_t WriteLine(I2cCmd* cmds, std::string raw_line);
+    zx_status_t WriteLine(I2cCmd* cmds, fbl::String raw_line);
 };
 }
