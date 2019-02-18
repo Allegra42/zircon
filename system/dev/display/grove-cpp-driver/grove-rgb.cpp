@@ -42,6 +42,9 @@ zx_status_t GroveRgbDevice::DdkWrite(const void* buf, size_t count, zx_off_t off
     zx_status_t status;
     char delim[] = " ";
     char tmp_str[count];
+    uint8_t red = 0;
+    uint8_t green = 0;
+    uint8_t blue = 0;
     int i = 0;
 
     fbl::AutoLock lock(&i2c_lock);
@@ -52,11 +55,11 @@ zx_status_t GroveRgbDevice::DdkWrite(const void* buf, size_t count, zx_off_t off
     char* ptr = strtok(tmp_str, delim);
     while (ptr != NULL) {
         if (i == 0 && ptr[0] == 'r') {
-            color_red = static_cast<uint8_t>(atoi(++ptr));
+            red = static_cast<uint8_t>(atoi(++ptr));
         } else if (i == 1 && ptr[0] == 'g') {
-            color_green = static_cast<uint8_t>(atoi(++ptr));
+            green = static_cast<uint8_t>(atoi(++ptr));
         } else if (i == 2 && ptr[0] == 'b') {
-            color_blue = static_cast<uint8_t>(atoi(++ptr));
+            blue = static_cast<uint8_t>(atoi(++ptr));
         } else {
             zxlogf(ERROR, "wrong input format!\n");
             return ZX_OK;
@@ -66,9 +69,9 @@ zx_status_t GroveRgbDevice::DdkWrite(const void* buf, size_t count, zx_off_t off
     }
 
     I2cCmd cmd[] = {
-        {RED, color_red},
-        {GREEN, color_green},
-        {BLUE, color_blue},
+        {RED, red},
+        {GREEN, green},
+        {BLUE, blue},
     };
     for (const auto& i : cmd) {
         status = i2c_rgb.WriteSync(&i.cmd, sizeof(cmd[0]));
@@ -77,6 +80,9 @@ zx_status_t GroveRgbDevice::DdkWrite(const void* buf, size_t count, zx_off_t off
             return status;
         }
     }
+    color_red = red;
+    color_green = green;
+    color_blue = blue;
 
     return ZX_OK;
 }
@@ -86,14 +92,10 @@ zx_status_t GroveRgbDevice::SetColor(void* ctx, uint8_t red, uint8_t green, uint
     auto& self = *static_cast<GroveRgbDevice*>(ctx);
     fbl::AutoLock lock(&self.i2c_lock);
 
-    self.color_red = red;
-    self.color_green = green;
-    self.color_blue = blue;
-
     I2cCmd cmd[] = {
-        {RED, self.color_red},
-        {GREEN, self.color_green},
-        {BLUE, self.color_blue},
+        {RED, red},
+        {GREEN, green},
+        {BLUE, blue},
     };
     for (const auto& i : cmd) {
         status = self.i2c_rgb.WriteSync(&i.cmd, sizeof(cmd[0]));
@@ -102,6 +104,11 @@ zx_status_t GroveRgbDevice::SetColor(void* ctx, uint8_t red, uint8_t green, uint
             return status;
         }
     }
+    
+    self.color_red = red;
+    self.color_green = green;
+    self.color_blue = blue;
+
     return ZX_OK;
 }
 
@@ -121,20 +128,21 @@ zx_status_t GroveRgbDevice::DdkMessage(fidl_msg_t* msg, fidl_txn_t* txn) {
 
 zx_status_t GroveRgbDevice::RgbInit() {
     zx_status_t status;
+    uint8_t green = 0;
 
     if (!i2c_rgb.is_valid()) {
         return ZX_ERR_NO_RESOURCES;
     }
 
-    color_green = 0xff;
+    green = 0xff;
 
     I2cCmd cmd[] = {
         {0, 0},
         {1, 0},
         {0x08, 0xaa},
-        {RED, color_red},
-        {GREEN, color_green},
-        {BLUE, color_blue},
+        {RED, 0x00},
+        {GREEN, green},
+        {BLUE, 0x00},
     };
     fbl::AutoLock lock(&i2c_lock);
     for (const auto& i : cmd) {
@@ -144,6 +152,7 @@ zx_status_t GroveRgbDevice::RgbInit() {
             goto error;
         }
     }
+    color_green = green;
 
     DdkMakeVisible();
     return status;

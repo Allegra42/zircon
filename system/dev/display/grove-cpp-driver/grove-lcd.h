@@ -66,6 +66,6 @@ private:
     };
 
     zx_status_t LcdInit();
-    zx_status_t WriteLine(I2cCmd* cmds, fbl::String raw_line);
+    zx_status_t WriteLine(I2cCmd* cmds, int cmd_elements, fbl::String raw_line);
 };
 }

@@ -19,13 +19,13 @@
 
 namespace grove {
 
-zx_status_t GroveLcdDevice::WriteLine(I2cCmd* cmds, fbl::String raw_line) {
+zx_status_t GroveLcdDevice::WriteLine(I2cCmd* cmds, int cmd_elements, fbl::String raw_line) {
     zx_status_t status;
 
     fbl::String tmp = fbl::String::Concat({"@", raw_line});
 
     fbl::AutoLock lock(&this->i2c_lock);
-    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(&cmds)); i++) {
+    for (int i = 0; i < cmd_elements; i++) {
         status = this->i2c_lcd.WriteSync(&cmds[i].cmd, sizeof(cmds[i]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "lcd-cpp: i2c.WriteSync failed\n");
@@ -60,6 +60,7 @@ zx_status_t GroveLcdDevice::DdkRead(void* buf, size_t count, zx_off_t off, size_
 }
 
 zx_status_t GroveLcdDevice::DdkWrite(const void* buf, size_t count, zx_off_t off, size_t* actual) {
+    zx_status_t status; 
     zxlogf(INFO, "%s\n", __func__);
 
     *actual = count;
@@ -69,45 +70,78 @@ zx_status_t GroveLcdDevice::DdkWrite(const void* buf, size_t count, zx_off_t off
         {LCD_CMD, 0x01},
         {LCD_CMD, 0x80},
     };
+
+    status = WriteLine(cmds, (int) (sizeof(cmds) / sizeof(*cmds)), tmp);
+    if (status != ZX_OK) {
+        zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
+        return status;
+    }
+
+    line_one = tmp;
     line_two = " ";
 
-    return WriteLine(cmds, tmp);
+    return status;
 }
 
 zx_status_t GroveLcdDevice::ClearLcd(void* ctx) {
+    zx_status_t status;
     auto& self = *static_cast<GroveLcdDevice*>(ctx);
     I2cCmd cmd = {LCD_CMD, 0x01};
 
     fbl::AutoLock lock(&self.i2c_lock);
-    return self.i2c_lcd.WriteSync(&cmd.cmd, sizeof(cmd));
+    
+    status = self.i2c_lcd.WriteSync(&cmd.cmd, sizeof(cmd));
+    if (status != ZX_OK) {
+        zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
+        return status;
+    }
+    
+    self.line_one = " ";
+    self.line_two = " ";
+
+    return status;
 }
 
 zx_status_t GroveLcdDevice::WriteFirstLine(void* ctx, uint8_t position, const char* line_data, size_t line_size) {
+    zx_status_t status;
     auto& self = *static_cast<GroveLcdDevice*>(ctx);
 
     fbl::String data(line_data);
-    self.line_one = data;
 
     uint8_t val = (position | 0x80);
     I2cCmd cmds[] = {
         {LCD_CMD, val},
     };
 
-    return self.WriteLine(cmds, self.line_one);
+    status = self.WriteLine(cmds, (int) (sizeof(cmds) / sizeof(*cmds)), data);
+    if (status != ZX_OK) {
+        zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
+        return status;
+    }
+
+    self.line_one = data;
+    return status;
 }
 
 zx_status_t GroveLcdDevice::WriteSecondLine(void* ctx, uint8_t position, const char* line_data, size_t line_size) {
+    zx_status_t status;
     auto& self = *static_cast<GroveLcdDevice*>(ctx);
 
     fbl::String data(line_data);
-    self.line_two = data;
 
     uint8_t val = (position | 0xc0);
     I2cCmd cmds[] = {
         {LCD_CMD, val},
     };
 
-    return self.WriteLine(cmds, self.line_two);
+    status = self.WriteLine(cmds, (int) (sizeof(cmds) / sizeof(*cmds)), data);
+    if (status != ZX_OK) {
+        zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
+        return status;
+    }
+
+    self.line_two = data;
+    return status;
 }
 
 zx_status_t GroveLcdDevice::ReadLcd(void* ctx, fidl_txn_t* txn) {

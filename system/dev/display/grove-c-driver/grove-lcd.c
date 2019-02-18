@@ -71,6 +71,10 @@ zx_status_t grove_lcd_fidl_clear(void* ctx) {
 
     mtx_lock(&grove_lcd->lock);
     status = i2c_write_sync(&grove_lcd->i2c, &cmd, sizeof(cmd));
+    if (status == ZX_OK) {
+        snprintf(grove_lcd->line_one, sizeof(grove_lcd->line_one), " ");
+        snprintf(grove_lcd->line_two, sizeof(grove_lcd->line_one), " ");
+    }
     mtx_unlock(&grove_lcd->lock);
 
     return status;
@@ -166,16 +170,20 @@ static zx_status_t grove_lcd_write(void* ctx, const void* buf, size_t count, zx_
     zx_status_t status;
     grove_lcd_t* grove_lcd = ctx;
 
-    zxlogf(INFO, "%s:  buf %s\n", __func__, (char*)buf);
-    snprintf(grove_lcd->line_one, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
-    *actual = count;
+    char tmp[LINE_SIZE];
+    snprintf(tmp, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
 
     i2c_cmd_t cmds[] = {
         {LCD_CMD, 0x01}, // clear display
         {LCD_CMD, 0x02}, // return home
     };
 
-    status = grove_lcd_write_line((void*)grove_lcd, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), grove_lcd->line_one);
+    status = grove_lcd_write_line((void*)grove_lcd, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), tmp);
+
+    zxlogf(INFO, "%s:  buf %s\n", __func__, (char*)buf);
+    snprintf(grove_lcd->line_one, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
+    snprintf(grove_lcd->line_two, strlen(grove_lcd->line_two), " ");
+    *actual = count;
 
     return status;
 }

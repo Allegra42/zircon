@@ -42,7 +42,7 @@ int main(int argc, const char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    if ((status = zircon_display_grove_rgb_RgbSetColor(handle_rgb, 0xff, 0x00, 0xff)) != ZX_OK) {
+    if ((status = zircon_display_grove_rgb_RgbSetColor(handle_rgb, 0x00, 0x00, 0xff)) != ZX_OK) {
         fprintf(stderr, "grove-lcd: can not execute FIDL command, error %d\n", status);
         exit(EXIT_FAILURE);
     }
@@ -77,7 +77,7 @@ int main(int argc, const char** argv) {
 
     sleep(3);
 
-    if ((status = zircon_display_grove_lcd_LcdWriteSecondLine(handle_lcd, 4, "Anna", 6)) != ZX_OK) {
+    if ((status = zircon_display_grove_lcd_LcdWriteSecondLine(handle_lcd, 4, "Test", 4)) != ZX_OK) {
         fprintf(stderr, "grove-lcd: can not execute FIDL command, error %d\n", status);
         exit(EXIT_FAILURE);
     }

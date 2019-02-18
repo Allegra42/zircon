@@ -68,6 +68,9 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
     zxlogf(INFO, "grove-rgb write needs the following format to work: r g b\ne.g. r0 g255 b0\n Values are allowed between 0 and 255\n");
 
     zx_status_t status;
+    uint8_t red = 0;
+    uint8_t green = 0;
+    uint8_t blue = 0;
     grove_rgb_t* grove_rgb = ctx;
 
     char delim[] = " ";
@@ -84,11 +87,11 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
     while (ptr != NULL) {
         zxlogf(INFO, "grove-rgb read token %s\n", ptr);
         if (i == 0 && ptr[0] == 'r') {
-            grove_rgb->color.red = atoi(++ptr);
+            red = atoi(++ptr);
         } else if (i == 1 && ptr[0] == 'g') {
-            grove_rgb->color.green = atoi(++ptr);
+            green = atoi(++ptr);
         } else if (i == 2 && ptr[0] == 'b') {
-            grove_rgb->color.blue = atoi(++ptr);
+            blue = atoi(++ptr);
         } else {
             zxlogf(ERROR, "wrong input format!\n");
             status = ZX_OK;
@@ -99,9 +102,9 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
     }
 
     i2c_cmd_t cmds[] = {
-        {RED, grove_rgb->color.red},
-        {GREEN, grove_rgb->color.green},
-        {BLUE, grove_rgb->color.blue},
+        {RED, red},
+        {GREEN, green},
+        {BLUE, blue},
     };
 
     for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
@@ -111,6 +114,9 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
             goto fail;
         }
     }
+    grove_rgb->color.red = red;
+    grove_rgb->color.green = green;
+    grove_rgb->color.blue = blue;
 
 fail:
     mtx_unlock(&grove_rgb->lock);
@@ -123,14 +129,10 @@ static zx_status_t grove_rgb_fidl_set_color(void* ctx, uint8_t red, uint8_t gree
 
     mtx_lock(&grove_rgb->lock);
 
-    grove_rgb->color.red = red;
-    grove_rgb->color.green = green;
-    grove_rgb->color.blue = blue;
-
     i2c_cmd_t cmds[] = {
-        {RED, grove_rgb->color.red},
-        {GREEN, grove_rgb->color.green},
-        {BLUE, grove_rgb->color.blue},
+        {RED, red},
+        {GREEN, green},
+        {BLUE, blue},
     };
 
     for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
@@ -141,6 +143,9 @@ static zx_status_t grove_rgb_fidl_set_color(void* ctx, uint8_t red, uint8_t gree
             return status;
         }
     }
+    grove_rgb->color.red = red;
+    grove_rgb->color.green = green;
+    grove_rgb->color.blue = blue;
 
     mtx_unlock(&grove_rgb->lock);
 
@@ -175,19 +180,20 @@ static zx_protocol_device_t grove_rgb_device_protocol = {
 static int grove_rgb_init_thread(void* arg) {
     zxlogf(INFO, "%s\n", __func__);
     grove_rgb_t* grove_rgb = arg;
+    uint8_t green;
     zx_status_t status;
 
     mtx_lock(&grove_rgb->lock);
 
-    grove_rgb->color.green = 0xff;
+    green = 0xff;
 
     i2c_cmd_t cmds[] = {
         {0x00, 0x00},
         {0x01, 0x00},
         {0x08, 0xaa},
-        {RED, grove_rgb->color.red},
-        {GREEN, grove_rgb->color.green},
-        {BLUE, grove_rgb->color.blue},
+        {RED, 0x00},
+        {GREEN, green},
+        {BLUE, 0x00},
     };
 
     for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
@@ -197,6 +203,7 @@ static int grove_rgb_init_thread(void* arg) {
             goto init_failed;
         }
     }
+    grove_rgb->color.green = green;
 
     mtx_unlock(&grove_rgb->lock);
 
