@@ -71,7 +71,7 @@ zx_status_t GroveLcdDevice::DdkWrite(const void* buf, size_t count, zx_off_t off
         {LCD_CMD, 0x80},
     };
 
-    status = WriteLine(cmds, (int) (sizeof(cmds) / sizeof(*cmds)), tmp);
+    status = WriteLine(cmds, ARRAY_SIZE(cmds), tmp);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -113,7 +113,7 @@ zx_status_t GroveLcdDevice::WriteFirstLine(void* ctx, uint8_t position, const ch
         {LCD_CMD, val},
     };
 
-    status = self.WriteLine(cmds, (int) (sizeof(cmds) / sizeof(*cmds)), data);
+    status = self.WriteLine(cmds, ARRAY_SIZE(cmds), data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -134,7 +134,7 @@ zx_status_t GroveLcdDevice::WriteSecondLine(void* ctx, uint8_t position, const c
         {LCD_CMD, val},
     };
 
-    status = self.WriteLine(cmds, (int) (sizeof(cmds) / sizeof(*cmds)), data);
+    status = self.WriteLine(cmds, ARRAY_SIZE(cmds), data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;

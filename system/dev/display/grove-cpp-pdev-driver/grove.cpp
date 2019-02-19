@@ -72,7 +72,7 @@ zx_status_t GroveDevice::WriteFirstLine(void* ctx, uint8_t position, const char*
         {LCD_CMD, val},
     };
 
-    status = self.WriteLine(cmds, (int)(sizeof(cmds) / sizeof(*cmds)), data);
+    status = self.WriteLine(cmds, ARRAY_SIZE(cmds), data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -94,7 +94,7 @@ zx_status_t GroveDevice::WriteSecondLine(void* ctx, uint8_t position, const char
         {LCD_CMD, val},
     };
 
-    status = self.WriteLine(cmds, (int)(sizeof(cmds) / sizeof(*cmds)), data);
+    status = self.WriteLine(cmds, ARRAY_SIZE(cmds), data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;

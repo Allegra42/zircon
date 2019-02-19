@@ -24,6 +24,8 @@
 
 #endif // __cplusplus
 
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof((a)[0]))
+
 #define LCD_CMD 0x80
 #define LINE_SIZE 17
 

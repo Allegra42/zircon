@@ -19,6 +19,8 @@
 // FIDL include
 #include <zircon/display/grove/pdev/c/fidl.h>
 
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof((a)[0]))
+
 #define RED 0x04
 #define GREEN 0x03
 #define BLUE 0x02
@@ -93,7 +95,7 @@ static zx_status_t grove_fidl_set_color(void* ctx, uint8_t red, uint8_t green, u
         {BLUE, blue},
     };
 
-    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(cmds); i++) {
         status = i2c_write_sync(&grove->i2c_rgb, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove: write to i2c device failed\n");
@@ -147,7 +149,7 @@ static zx_status_t grove_fidl_write_first_line(void* ctx, uint8_t position, cons
         {LCD_CMD, val}, // set cursor
     };
 
-    status = grove_write_line((void*)grove, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), (char*)line_data);
+    status = grove_write_line((void*)grove, cmds, ARRAY_SIZE(cmds), (char*)line_data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -166,7 +168,7 @@ static zx_status_t grove_fidl_write_second_line(void* ctx, uint8_t position, con
         {LCD_CMD, val}, // set cursor
     };
 
-    status = grove_write_line((void*)grove, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), (char*)line_data);
+    status = grove_write_line((void*)grove, cmds, ARRAY_SIZE(cmds), (char*)line_data);
      if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -232,7 +234,7 @@ static int grove_init_thread(void* arg) {
         {BLUE, 0x00},
     };
 
-    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(cmds); i++) {
         status = i2c_write_sync(&grove->i2c_rgb, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove: write failed\n");
@@ -249,7 +251,7 @@ static int grove_init_thread(void* arg) {
         {LCD_CMD, 0x28},
     };
 
-    for (int i = 0; i < (int)(sizeof(setup_cmds) / sizeof(*setup_cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(cmds); i++) {
         status = i2c_write_sync(&grove->i2c_lcd, &setup_cmds[i].cmd, sizeof(setup_cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");

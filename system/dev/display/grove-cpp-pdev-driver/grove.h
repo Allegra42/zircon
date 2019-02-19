@@ -27,6 +27,8 @@
 
 #endif // __cplusplus
 
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof((a)[0]))
+
 #define RED 0x04
 #define GREEN 0x03
 #define BLUE 0x02

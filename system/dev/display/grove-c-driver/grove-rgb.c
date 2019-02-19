@@ -18,6 +18,8 @@
 // FIDL include
 #include <zircon/display/grove/rgb/c/fidl.h>
 
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof((a)[0]))
+
 #define RED 0x04
 #define GREEN 0x03
 #define BLUE 0x02
@@ -107,7 +109,7 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
         {BLUE, blue},
     };
 
-    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(cmds); i++) {
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
@@ -135,7 +137,7 @@ static zx_status_t grove_rgb_fidl_set_color(void* ctx, uint8_t red, uint8_t gree
         {BLUE, blue},
     };
 
-    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(cmds); i++) {
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");
@@ -196,7 +198,7 @@ static int grove_rgb_init_thread(void* arg) {
         {BLUE, 0x00},
     };
 
-    for (int i = 0; i < (int)(sizeof(cmds) / sizeof(*cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(cmds); i++) {
         status = i2c_write_sync(&grove_rgb->i2c, &cmds[i].cmd, sizeof(cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-rgb: write failed\n");

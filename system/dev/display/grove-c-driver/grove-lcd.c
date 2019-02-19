@@ -18,6 +18,8 @@
 // FIDL include
 #include <zircon/display/grove/lcd/c/fidl.h>
 
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof((a)[0]))
+
 #define LCD_CMD 0x80
 #define WRITE_CMD 0x40
 #define LINE_SIZE 17
@@ -89,7 +91,7 @@ zx_status_t grove_lcd_fidl_write_first_line(void* ctx, uint8_t position, const c
         {LCD_CMD, val}, // set cursor
     };
 
-    status = grove_lcd_write_line((void*)grove_lcd, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), (char*)line_data);
+    status = grove_lcd_write_line((void*)grove_lcd, cmds, ARRAY_SIZE(cmds), (char*)line_data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -109,7 +111,7 @@ zx_status_t grove_lcd_fidl_write_second_line(void* ctx, uint8_t position, const 
         {LCD_CMD, val}, // set cursor
     };
 
-    status = grove_lcd_write_line((void*)grove_lcd, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), (char*)line_data);
+    status = grove_lcd_write_line((void*)grove_lcd, cmds, ARRAY_SIZE(cmds), (char*)line_data);
     if (status != ZX_OK) {
         zxlogf(ERROR, "%s failed with status code %d\n", __func__, status);
         return status;
@@ -178,7 +180,7 @@ static zx_status_t grove_lcd_write(void* ctx, const void* buf, size_t count, zx_
         {LCD_CMD, 0x02}, // return home
     };
 
-    status = grove_lcd_write_line((void*)grove_lcd, cmds, (int)(sizeof(cmds) / sizeof(*cmds)), tmp);
+    status = grove_lcd_write_line((void*)grove_lcd, cmds, ARRAY_SIZE(cmds), tmp);
 
     zxlogf(INFO, "%s:  buf %s\n", __func__, (char*)buf);
     snprintf(grove_lcd->line_one, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
