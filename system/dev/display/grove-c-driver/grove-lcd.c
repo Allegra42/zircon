@@ -43,8 +43,7 @@ zx_status_t grove_lcd_write_line(void* ctx, i2c_cmd_t* cmds, int cmd_elements, c
     grove_lcd_t* grove_lcd = ctx;
 
     char line[LINE_SIZE + 1] = {" "};
-    
-    snprintf(line, (strlen(raw_line) + 2 <= LINE_SIZE ? strlen(raw_line) + 2 : LINE_SIZE + 1), "@%s", raw_line);
+    int send = snprintf(line, (strlen(raw_line) + 2 <= LINE_SIZE ? strlen(raw_line) + 2 : LINE_SIZE + 1), "@%s", raw_line);
 
     mtx_lock(&grove_lcd->lock);
 
@@ -56,7 +55,7 @@ zx_status_t grove_lcd_write_line(void* ctx, i2c_cmd_t* cmds, int cmd_elements, c
         }
     }
 
-    status = i2c_write_sync(&grove_lcd->i2c, line, strlen(line));
+    status = i2c_write_sync(&grove_lcd->i2c, line, send);
     if (status != ZX_OK) {
         zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");
     }
@@ -173,7 +172,7 @@ static zx_status_t grove_lcd_write(void* ctx, const void* buf, size_t count, zx_
     grove_lcd_t* grove_lcd = ctx;
 
     char tmp[LINE_SIZE];
-    snprintf(tmp, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
+    snprintf(tmp, count < LINE_SIZE ? count : LINE_SIZE, "%s", (char*)buf);
 
     i2c_cmd_t cmds[] = {
         {LCD_CMD, 0x01}, // clear display
@@ -183,7 +182,7 @@ static zx_status_t grove_lcd_write(void* ctx, const void* buf, size_t count, zx_
     status = grove_lcd_write_line((void*)grove_lcd, cmds, ARRAY_SIZE(cmds), tmp);
 
     zxlogf(INFO, "%s:  buf %s\n", __func__, (char*)buf);
-    snprintf(grove_lcd->line_one, strlen(buf) < LINE_SIZE ? strlen(buf) : LINE_SIZE, "%s", (char*)buf);
+    snprintf(grove_lcd->line_one, count < LINE_SIZE ? count : LINE_SIZE, "%s", (char*)buf);
     snprintf(grove_lcd->line_two, strlen(grove_lcd->line_two), " ");
     *actual = count;
 
@@ -225,7 +224,7 @@ static int grove_lcd_init_thread(void* arg) {
         {LCD_CMD, 0x28}, // enable 2 lines
     };
 
-    for (int i = 0; i < (int)(sizeof(setup_cmds) / sizeof(*setup_cmds)); i++) {
+    for (int i = 0; i < (int)ARRAY_SIZE(setup_cmds); i++) {
         status = i2c_write_sync(&grove_lcd->i2c, &setup_cmds[i].cmd, sizeof(setup_cmds[0]));
         if (status != ZX_OK) {
             zxlogf(ERROR, "grove-lcd: write to i2c device failed\n");

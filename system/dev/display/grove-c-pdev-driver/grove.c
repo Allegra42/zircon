@@ -55,7 +55,7 @@ zx_status_t grove_write_line(void* ctx, i2c_cmd_t* cmds, int cmd_elements, char*
     grove_t* grove = ctx;
 
     char line[LINE_SIZE + 1] = {" "};
-    snprintf(line, (strlen(raw_line) + 2 <= LINE_SIZE ? strlen(raw_line) + 2 : LINE_SIZE + 1), "@%s", raw_line);
+    int send = snprintf(line, (strlen(raw_line) + 2 <= LINE_SIZE ? strlen(raw_line) + 2 : LINE_SIZE + 1), "@%s", raw_line);
     
     mtx_lock(&grove->lock);
 
@@ -67,7 +67,7 @@ zx_status_t grove_write_line(void* ctx, i2c_cmd_t* cmds, int cmd_elements, char*
         }
     }
 
-    status = i2c_write_sync(&grove->i2c_lcd, line, strlen(line));
+    status = i2c_write_sync(&grove->i2c_lcd, line, send);
     if (status != ZX_OK) {
         zxlogf(ERROR, "grove: write to i2c device failed\n");
     }

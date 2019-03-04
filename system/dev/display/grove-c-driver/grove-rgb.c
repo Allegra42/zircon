@@ -52,13 +52,11 @@ static zx_status_t grove_rgb_read(void* ctx, void* buf, size_t count, zx_off_t o
     zxlogf(INFO, "%s\n", __func__);
     if (off == 0) {
         grove_rgb_t* grove_rgb = ctx;
-        char tmp[50];
-        *actual = snprintf(tmp, sizeof(tmp), "Grove LCD RGB Status:\nRed: %x\nGreen: %x\nBlue: %x\n",
+        *actual = snprintf(buf, count, "Grove LCD RGB Status:\nRed: %x\nGreen: %x\nBlue: %x\n",
                            grove_rgb->color.red, grove_rgb->color.green, grove_rgb->color.blue);
         if (*actual > count) {
             *actual = count;
         }
-        memcpy(buf, tmp, *actual);
     } else {
         *actual = 0;
     }
@@ -78,14 +76,14 @@ static zx_status_t grove_rgb_write(void* ctx, const void* buf, size_t count, zx_
     char delim[] = " ";
     int i = 0;
 
-    char tmp_str[count];
-    memcpy(tmp_str, buf, count);
+    char tmp[count + 1];
+    snprintf(tmp, count, "%s\n", (char*)buf);
 
     *actual = count;
 
     mtx_lock(&grove_rgb->lock);
 
-    char* ptr = strtok(tmp_str, delim);
+    char* ptr = strtok(tmp, delim);
     while (ptr != NULL) {
         zxlogf(INFO, "grove-rgb read token %s\n", ptr);
         if (i == 0 && ptr[0] == 'r') {
