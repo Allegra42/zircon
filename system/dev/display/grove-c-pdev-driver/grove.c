@@ -80,6 +80,7 @@ error:
 static void grove_release(void* ctx) {
     zxlogf(INFO, "%s\n", __func__);
     grove_t* grove = ctx;
+    device_remove(grove->device);
     free(grove);
 }
 

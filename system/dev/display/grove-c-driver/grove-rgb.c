@@ -45,6 +45,7 @@ typedef struct {
 static void grove_rgb_release(void* ctx) {
     zxlogf(INFO, "%s\n", __func__);
     grove_rgb_t* grove_rgb = ctx;
+    device_remove(grove_rgb->device);
     free(grove_rgb);
 }
 

@@ -144,6 +144,7 @@ static void grove_lcd_release(void* ctx) {
     zxlogf(INFO, "%s\n", __func__);
 
     grove_lcd_t* grove_lcd = ctx;
+    device_remove(grove_lcd->device);
     free(grove_lcd);
 }
 
